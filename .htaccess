@@ -1,0 +1,29 @@
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Bloqueia o acesso a arquivos .htaccess
+<Files .htaccess>
+    order allow,deny
+    deny from all
+</Files>
+
+# Bloqueia os arquivos do composer
+<Files composer.json>
+    order allow,deny
+    deny from all
+</Files>
+
+# Bloqueia os arquivos do composer
+<Files .env>
+    order allow,deny
+    deny from all
+</Files>
+
+# Bloqueia listagem de diretórios
+Options All -Indexes
+
+# Errors
+ErrorDocument 403 /uml/error.php
+ErrorDocument 404 /uml/error.php
+ErrorDocument 500 /uml/error.php
