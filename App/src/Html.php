@@ -111,6 +111,13 @@ class Html
   {
     return "<a onclick=send_form('$link') style='width:100px; height: 38px' class='text-decoration-none text-danger m-1'>$name</a>";
   }
+
+  function debug($var)
+  {
+    echo '<pre>';
+    print_r($var);
+    echo '</pre>';
+  }
 }
 
 ?>

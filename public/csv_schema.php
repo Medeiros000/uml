@@ -1,4 +1,8 @@
 <?php
+// padrao para encontrar palavras entre parenteses
+$padrao_parenteses = '/\((.*?)\)/';
+$padrao_varchar    = '/character varying/';
+$variavel          = ['character', 'double', 'timestamp', 'time', 'interval'];
 
 if (!isset($_POST['page']) || !isset($html)) {
   echo 'You are doing it wrong!';
@@ -109,9 +113,9 @@ if (file_exists($tables_file)) {
 }
 
 foreach ($tables as $table) {
-  $t = $table['table_name'];
+  $table = $table['table_name'];
 
-  $query = "SELECT pg_get_tabledef('$schema', '$t', False) AS create_table;";
+  $query = "SELECT pg_get_tabledef('$schema', '$table', False) AS create_table;";
   $stmt  = $db->prepare($query);
   try {
     $stmt->execute();
@@ -130,28 +134,56 @@ foreach ($tables as $table) {
     exit;
   }
 
-  $create = $stmt->fetch(PDO::FETCH_ASSOC)['create_table'];
+  $create_table_index = $stmt->fetch(PDO::FETCH_ASSOC)['create_table'];
+  $create_table_index = preg_replace('/\n\)/', ' ', $create_table_index);
+  $create_table_index = explode(';', $create_table_index);
+  $create_list        = $create_table_index[0];
+  unset($create_table_index[0]);
 
-  if (preg_match($padrao, $create)) {
-    $t                          = explode("{$schema}.", $create);
+  if (preg_match('/PARTITION OF/', $create_list)) {
+    $t                          = explode("{$schema}.", $create_list);
     $child_table                = rtrim($t[1], ' PARTITION OF');
     $parent_table               = explode(' ', $t[2])[0];
     $reg_table[$parent_table][] = $child_table;
   } else {
-    echo $t . '<br>';
-    $colunas       = explode('(', $create);
-    $colunas       = explode(')', $colunas[1])[0];
-    $colunas       = explode(',', $colunas);
-    $total_colunas = '';
-    foreach ($colunas as $coluna) {
-      $coluna         = explode(' ', trim($coluna));
-      $total_colunas .= $coluna[0] . ':' . $coluna[1] . ';';
-    }
-    $file_tables   = fopen($tables_file, 'a');
-    $total_colunas = rtrim($total_colunas, ';');
-    fwrite($file_tables, "$schema,$t,$total_colunas" . PHP_EOL);
+    echo $table . '<br>';
 
-    $reg_table[$t] = [];
+    $create_list = explode("{$schema}.{$table} (", $create_list);
+    unset($create_list[0]);
+    $create_list = explode(',', $create_list[1]);
+    $create_list = array_map('trim', $create_list);
+    $create_list = preg_replace('/\r/', ' ', $create_list);
+
+    $str_list = '';
+    foreach ($create_list as $key => $value) {
+      $v_list = explode(' ', $value);
+      if (preg_match($padrao_varchar, $value)) {
+        $v_list    = explode(' ', $value);
+        $v_list[2] = preg_replace('/varying/', 'varchar', $v_list[2]);
+
+        $str_list .= "{$v_list[0]}:{$v_list[2]};";
+      } else if (preg_match('/CONSTRAINT/', $value)) {
+        $v_list          = explode(' ', $value);
+        $column_key      = preg_grep($padrao_parenteses, $v_list);
+        $keys_constraint = array_slice($column_key, 0)[0];
+
+        if (preg_match('/PRIMARY/', $value)) {
+          $str_list .= "PRIMARY KEY:$keys_constraint;";
+        } else if (preg_match('/UNIQUE/', $value)) {
+          $str_list .= "UNIQUE:$keys_constraint;";
+        } else if (preg_match('/FOREIGN/', $value)) {
+          $str_list .= "FOREIGN KEY:$keys_constraint;";
+        }
+      } else if (preg_match('/\n\)/', $v_list[0])) {
+        continue;
+      } else {
+        $str_list .= "{$v_list[0]}:{$v_list[1]};";
+      }
+    }
+    // die(var_dump($str_list));
+    $file_tables = fopen($tables_file, 'a');
+    $str_list    = rtrim($str_list, ';');
+    fwrite($file_tables, "$schema,$table,$str_list" . PHP_EOL);
     fclose($file_tables);
   }
 }
