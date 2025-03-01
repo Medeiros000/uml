@@ -72,7 +72,7 @@ class Html
             </div>";
   }
 
-  function h_card_t($key, $value, $l_part)
+  function h_card_t($key, $value, $l_part, $l_indexes = Null)
   {
     $particoes = '';
     if (array_key_exists($key, $l_part)) {
@@ -90,6 +90,15 @@ class Html
         <td class='pt-1 pb-1'>$v[0]</td>
         <td class='pt-1 pb-1'>$v[1]</td>
       </tr>";
+    }
+    if (!empty($l_indexes[0])) {
+      foreach ($l_indexes as $v) {
+        $v     = explode(':', $v);
+        $html .= "<tr>
+        <td class='pt-1 pb-1'>IDX $v[0]</td>
+        <td class='pt-1 pb-1'>$v[1]</td>
+      </tr>";
+      }
     }
     $html .= '</tbody>
       </table>

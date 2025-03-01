@@ -1,5 +1,6 @@
 <?php
-// padrao para encontrar palavras entre parenteses
+require_once './vendor/autoload.php';
+
 $padrao_parenteses = '/\((.*?)\)/';
 $padrao_varchar    = '/character varying/';
 $variavel          = ['character', 'double', 'timestamp', 'time', 'interval'];
@@ -8,8 +9,8 @@ if (!isset($_POST['page']) || !isset($html)) {
   echo 'You are doing it wrong!';
   exit;
 }
+
 $schema   = $_POST['subpage'] ?? '';
-// $database = $_SESSION['database'] ?? 'postgres';
 $database = $conn->getDatabase();
 
 if (!file_exists('files')) {
@@ -33,12 +34,6 @@ if (!file_exists('files/.htaccess')) {
   $htaccess = fopen('files/.htaccess', 'w');
   fwrite($htaccess, 'deny from all');
   fclose($htaccess);
-  if (!file_exists("files/$database/partitions")) {
-    mkdir("files/$database/partitions");
-  }
-  if (!file_exists("files/$database/tables")) {
-    mkdir("files/$database/tables");
-  }
 }
 
 $tables_file     = "files/$database/tables/{$schema}_t.csv";
@@ -80,7 +75,6 @@ if (count($tables) == 0) {
 
 if (file_exists($tables_file)) {
   $t         = fopen($tables_file, 'r');
-  // Count the number of tables in the csv's files
   $n_tab_csv = 0;
 
   while (($line = fgetcsv($t)) !== false) {
@@ -89,6 +83,7 @@ if (file_exists($tables_file)) {
     }
   }
   fclose($t);
+
   if (file_exists($partitions_file)) {
     $p = fopen($partitions_file, 'r');
     while (($line = fgetcsv($p)) !== false) {
@@ -146,50 +141,64 @@ foreach ($tables as $table) {
     $parent_table               = explode(' ', $t[2])[0];
     $reg_table[$parent_table][] = $child_table;
   } else {
-    echo $table . '<br>';
-
     $create_list = explode("{$schema}.{$table} (", $create_list);
     unset($create_list[0]);
     $create_list = explode(',', $create_list[1]);
     $create_list = array_map('trim', $create_list);
     $create_list = preg_replace('/\r/', ' ', $create_list);
 
-    $str_list = '';
+    $str_columns = '';
     foreach ($create_list as $key => $value) {
       $v_list = explode(' ', $value);
       if (preg_match($padrao_varchar, $value)) {
         $v_list    = explode(' ', $value);
         $v_list[2] = preg_replace('/varying/', 'varchar', $v_list[2]);
 
-        $str_list .= "{$v_list[0]}:{$v_list[2]};";
+        $str_columns .= "{$v_list[0]}:{$v_list[2]};";
       } else if (preg_match('/CONSTRAINT/', $value)) {
         $v_list          = explode(' ', $value);
         $column_key      = preg_grep($padrao_parenteses, $v_list);
         $keys_constraint = array_slice($column_key, 0)[0];
 
         if (preg_match('/PRIMARY/', $value)) {
-          $str_list .= "PRIMARY KEY:$keys_constraint;";
+          $str_columns .= "PRIMARY KEY:$keys_constraint;";
         } else if (preg_match('/UNIQUE/', $value)) {
-          $str_list .= "UNIQUE:$keys_constraint;";
+          $str_columns .= "UNIQUE:$keys_constraint;";
         } else if (preg_match('/FOREIGN/', $value)) {
-          $str_list .= "FOREIGN KEY:$keys_constraint;";
+          $str_columns .= "FOREIGN KEY:$keys_constraint;";
         }
       } else if (preg_match('/\n\)/', $v_list[0])) {
         continue;
       } else {
-        $str_list .= "{$v_list[0]}:{$v_list[1]};";
+        $str_columns .= "{$v_list[0]}:{$v_list[1]};";
       }
     }
-    // die(var_dump($str_list));
+
+    $str_indexes = '';
+    if (!empty(trim($create_table_index[1]))) {
+      foreach ($create_table_index as $value) {
+        if (empty(trim($value))) {
+          continue;
+        }
+        $value        = explode(' USING ', $value);
+        $value        = explode(' ', $value[1]);
+        $index_type   = $value[0];
+        $index_values = $value[1];
+
+        $str_indexes .= "$index_type:$index_values;";
+      }
+      $str_indexes = rtrim($str_indexes, ';');
+      // $str_columns .= $str_indexes;
+    }
+
     $file_tables = fopen($tables_file, 'a');
-    $str_list    = rtrim($str_list, ';');
-    fwrite($file_tables, "$schema,$table,$str_list" . PHP_EOL);
+    $str_columns = rtrim($str_columns, ';');
+    fwrite($file_tables, "$schema,$table,$str_columns,$str_indexes" . PHP_EOL);
     fclose($file_tables);
   }
 }
 
 $partitions = fopen($partitions_file, 'a');
-$contador   = 1;
 foreach ($reg_table as $key => $value) {
   $n_partitions = count($value);
   if ($n_partitions > 0) {
@@ -197,5 +206,8 @@ foreach ($reg_table as $key => $value) {
   }
 }
 fclose($partitions);
-$html->h_span('END', 'fs-4 text-center m-1');
+
+echo $html->h_o_container('m-auto mt-3 mb-3');
+echo $html->h_span('END', 'fs-4 text-center m-1 text-danger');
+echo $html->h_c_container();
 ?>

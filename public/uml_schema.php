@@ -3,7 +3,7 @@ $schema   = $_POST['subpage'] ?? '';
 $database = $conn->getDatabase();
 
 if ($schema == '') {
-  echo 'Schema não encontrado ou não informado';
+  echo 'Schema not found or not informed';
   exit;
 } else {
   echo $html->h_o_container('m-auto mt-3 mb-3');
@@ -52,12 +52,17 @@ if (!file_exists($tables_file) || !file_exists($partitions_file)) {
   $t_csv = fopen($tables_file, 'r');
   while ($tables = fgetcsv($t_csv)) {
     $l_tab[$tables[1]] = explode(';', $tables[2]);
+    $l_indexes[$tables[1]] = explode(';', $tables[3]);
   }
   fclose($t_csv);
+  // die($html->debug($l_indexes));
+  // die($html->debug($l_tab));
+  ksort($l_tab);
 
   echo $html->h_o_container();
   foreach ($l_tab as $key => $value) {
-    echo $html->h_card_t($key, $value, $l_part);
+    // die($html->debug([$key, $value, $l_part, $l_indexes[$key]]));
+    echo $html->h_card_t($key, $value, $l_part, $l_indexes[$key]);
   }
   echo $html->h_c_container();
 }
