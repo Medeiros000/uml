@@ -13,9 +13,14 @@ body {
 .card {
 	height: fit-content;
 	width: 250px;
-	border-radius: 0;
+	border: 0;
+	/* border-radius: 0; */
 }
 
 .bg-light {
 	background-color: #fff;
+}
+
+.radius-down {
+	border-radius: 0 0 5px 5px;
 }

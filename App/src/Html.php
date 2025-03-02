@@ -72,37 +72,89 @@ class Html
             </div>";
   }
 
-  function h_card_t($key, $value, $l_part, $l_indexes = Null)
+  function h_card_t($key, $value, $l_part = Null, $l_indexes = Null)
   {
     $particoes = '';
+    $more      = "<tr class='more'><td colspan='2' class='text-center text-bg-secondary' style='padding: 0;'>click to expand</td></tr><tr style='display:none;'></tr>";
+    if (count($value) > 3) {
+      $value = array_merge(array_slice($value, 0, 3), [$more], array_slice($value, 3));
+    }
     if (array_key_exists($key, $l_part)) {
       $particoes = " ($l_part[$key] partitions)";
     }
-    $html = "<div class='card m-1 border-bottom-0'>
-      <div class='card-header text-center rounded-top bg-light fw-bolder' style='bg-opacity: 0;'>
+    $html  = "<div class='card m-1 tab' style='cursor: pointer;' title='Click to expand'>
+      <div class='card-header text-center rounded-top fw-bolder text-bg-dark' style='bg-opacity: 0; font-size: 0.9rem; padding: 0.2rem;'>
         $key $particoes
       </div>
       <table class='table table-striped m-0 ps-2 pe-2'>
         <tbody>";
+    $index = 0;
     foreach ($value as $v) {
+      if ($v == $more) {
+        $html .= $more;
+        continue;
+      }
+      $class = $index >= 3 ? 'class="expandable" style="display: none;"' : '';
+      $index++;
       $v     = explode(':', $v);
-      $html .= "<tr>
+      $html .= "<tr $class>
         <td class='pt-1 pb-1'>$v[0]</td>
         <td class='pt-1 pb-1'>$v[1]</td>
       </tr>";
     }
     if (!empty($l_indexes[0])) {
       foreach ($l_indexes as $v) {
+        if ($v == $more) {
+          $html .= $more;
+          continue;
+        }
+        $class = $index >= 3 ? 'class="expandable" style="display: none;"' : '';
+        $index++;
         $v     = explode(':', $v);
-        $html .= "<tr>
+        $html .= "<tr $class>
         <td class='pt-1 pb-1'>IDX $v[0]</td>
         <td class='pt-1 pb-1'>$v[1]</td>
       </tr>";
       }
     }
+    if ($index > 3) {
+      $html .= '<tr class="expandable radius-down" style="display: none;">';
+    } else {
+      $html .= '<tr class="radius-down">';
+    }
+    $html .= '
+        <td colspan="2" class="text-center text-dark bg-dark radius-down" style="padding: 0;">_</td>
+      </tr>';
     $html .= '</tbody>
-      </table>
+      </table>      
     </div>';
+    return $html;
+  }
+
+  function h_table_t($value, $l_indexes = Null)
+  {
+    $html = "
+            <table class='table table-striped m-0 ps-2 pe-2'>
+              <tbody>";
+    foreach ($value as $v) {
+      $v     = explode(':', $v);
+      $html .= "<tr>
+                  <td class='pt-1 pb-1'>$v[0]</td>
+                  <td class='pt-1 pb-1'>$v[1]</td>
+                </tr>";
+    }
+    if ($l_indexes != Null) {
+      foreach ($l_indexes as $v) {
+        $v     = explode(':', $v);
+        $html .= "<tr>
+                    <td class='pt-1 pb-1'>IDX $v[0]</td>
+                    <td class='pt-1 pb-1'>$v[1]</td>
+                  </tr>";
+      }
+    }
+    $html .= '</tbody>
+      </table>';
+
     return $html;
   }
 

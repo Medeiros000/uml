@@ -55,14 +55,12 @@ if (!file_exists($tables_file) || !file_exists($partitions_file)) {
     $l_indexes[$tables[1]] = explode(';', $tables[3]);
   }
   fclose($t_csv);
-  // die($html->debug($l_indexes));
-  // die($html->debug($l_tab));
   ksort($l_tab);
 
   echo $html->h_o_container();
   foreach ($l_tab as $key => $value) {
-    // die($html->debug([$key, $value, $l_part, $l_indexes[$key]]));
-    echo $html->h_card_t($key, $value, $l_part, $l_indexes[$key]);
+    $head = array_key_exists($key, $l_part) ? "{$key} {$l_part[$key]} partitions" : $key;
+    echo $html->h_card_t($head, $value, $l_indexes[$key]);
   }
   echo $html->h_c_container();
 }
