@@ -30,6 +30,21 @@ class Html
             </head>";
   }
 
+  function h_head_t($title, $meta = Null)
+  {
+    return "<head>
+              <meta charset='UTF-8'>
+              <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+              <script src='js/jquery/jquery-3.7.1.min.js'></script>
+              <link rel='stylesheet' href='css/bootstrap/css/bootstrap.min.css'>
+              <script src='css/bootstrap/js/bootstrap.min.js'></script>
+              <link rel='stylesheet' href='css/style.css'>
+              <script src='js/script.js'></script>
+              $meta
+              <title>$title</title>
+            </head>";
+  }
+
   function h_o_body($class = Null)
   {
     return "<body class='$class'>";
@@ -75,9 +90,10 @@ class Html
   function h_card_t($key, $value, $l_part = Null, $l_indexes = Null)
   {
     $particoes = '';
+    $lines     = 3;
     $more      = "<tr class='more'><td colspan='2' class='text-center text-bg-secondary' style='padding: 0;'>click to expand</td></tr><tr style='display:none;'></tr>";
-    if (count($value) > 3) {
-      $value = array_merge(array_slice($value, 0, 3), [$more], array_slice($value, 3));
+    if (count($value) > $lines) {
+      $value = array_merge(array_slice($value, 0, $lines), [$more], array_slice($value, $lines));
     }
     if (array_key_exists($key, $l_part)) {
       $particoes = " ($l_part[$key] partitions)";
@@ -94,7 +110,7 @@ class Html
         $html .= $more;
         continue;
       }
-      $class = $index >= 3 ? 'class="expandable" style="display: none;"' : '';
+      $class = $index >= $lines ? 'class="expandable" style="display: none;"' : '';
       $index++;
       $v     = explode(':', $v);
       $html .= "<tr $class>
@@ -108,7 +124,7 @@ class Html
           $html .= $more;
           continue;
         }
-        $class = $index >= 3 ? 'class="expandable" style="display: none;"' : '';
+        $class = $index >= $lines ? 'class="expandable" style="display: none;"' : '';
         $index++;
         $v     = explode(':', $v);
         $html .= "<tr $class>
@@ -117,7 +133,7 @@ class Html
       </tr>";
       }
     }
-    if ($index > 3) {
+    if ($index > $lines) {
       $html .= '<tr class="expandable radius-down" style="display: none;">';
     } else {
       $html .= '<tr class="radius-down">';
@@ -178,6 +194,15 @@ class Html
     echo '<pre>';
     print_r($var);
     echo '</pre>';
+  }
+
+  function debug_f($var)
+  {
+    echo "<div class='fixed-top float-start'>";
+    echo '<pre>';
+    print_r($var);
+    echo '</pre>';
+    echo '</div>';
   }
 }
 

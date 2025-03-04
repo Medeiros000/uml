@@ -18,9 +18,21 @@ $(document).ready(function () {
 		} else {
 			expandableMore.show();
 		}
-		console.log("clicked");
 	});
 });
+
+//  expand all rows
+function expand_all() {
+	if ($("#expand").text() == "expand all") {
+		$(".expandable").show();
+		$(".more").hide();
+		$("#expand").text("collapse all");
+	} else {
+		$(".expandable").hide();
+		$(".more").show();
+		$("#expand").text("expand all");
+	}
+}
 
 function send_form(page) {
 	$("#post").html(`

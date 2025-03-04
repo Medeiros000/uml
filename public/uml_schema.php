@@ -4,7 +4,7 @@ $database = $conn->getDatabase();
 
 if ($schema == '') {
   echo 'Schema not found or not informed';
-  exit;
+  die();
 } else {
   echo $html->h_o_container('m-auto mt-3 mb-3');
   echo $html->h_span('Schema: ', 'fs-4 text-center m-1');
@@ -12,12 +12,12 @@ if ($schema == '') {
   echo $html->h_c_container();
 }
 
-$tables_file     = "files/$database/tables/{$schema}_t.csv";
-$partitions_file = "files/$database/partitions/{$schema}_p.csv";
+$tables_file     = "../files/$database/tables/{$schema}_t.csv";
+$partitions_file = "../files/$database/partitions/{$schema}_p.csv";
 
 if (!file_exists($tables_file) || !file_exists($partitions_file)) {
   echo '<h3 class="text-center m-3">Files not found</h3>';
-  exit;
+  die();
 } else {
   $p_csv = fopen($partitions_file, 'r');
   $t_csv = fopen($tables_file, 'r');
@@ -31,7 +31,7 @@ if (!file_exists($tables_file) || !file_exists($partitions_file)) {
     echo $html->h_c_container();
     fclose($p_csv);
     fclose($t_csv);
-    exit;
+    die();
   }
 
   fclose($p_csv);
@@ -51,15 +51,19 @@ if (!file_exists($tables_file) || !file_exists($partitions_file)) {
 
   $t_csv = fopen($tables_file, 'r');
   while ($tables = fgetcsv($t_csv)) {
-    $l_tab[$tables[1]] = explode(';', $tables[2]);
+    $l_tab[$tables[1]]     = explode(';', $tables[2]);
     $l_indexes[$tables[1]] = explode(';', $tables[3]);
   }
   fclose($t_csv);
   ksort($l_tab);
 
+  echo $html->h_o_container('m-auto mt-3 mb-3');
+  echo '<button id="expand" class="btn btn-dark" onclick="expand_all()">expand all</button>';
+  echo $html->h_c_container();
+
   echo $html->h_o_container();
   foreach ($l_tab as $key => $value) {
-    $head = array_key_exists($key, $l_part) ? "{$key} {$l_part[$key]} partitions" : $key;
+    $head = array_key_exists($key, $l_part) ? "{$key} ({$l_part[$key]} partitions)" : $key;
     echo $html->h_card_t($head, $value, $l_indexes[$key]);
   }
   echo $html->h_c_container();

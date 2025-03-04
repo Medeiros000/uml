@@ -24,6 +24,6 @@ RewriteCond %{REQUEST_FILENAME} !-d
 Options All -Indexes
 
 # Errors
-ErrorDocument 403 /uml/error.php
-ErrorDocument 404 /uml/error.php
-ErrorDocument 500 /uml/error.php
+ErrorDocument 403 error_redirect.php
+ErrorDocument 404 error_redirect.php
+ErrorDocument 500 error_redirect.php

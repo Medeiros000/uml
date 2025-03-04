@@ -4,6 +4,10 @@ body {
 	background-color: #f0f0f0;
 }
 
+tr > td {
+	width: 50%;
+}
+
 .container {
 	display: flex;
 	flex-wrap: wrap;

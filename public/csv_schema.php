@@ -1,5 +1,5 @@
 <?php
-require_once './vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $padrao_parenteses = '/\((.*?)\)/';
 $padrao_varchar    = '/character varying/';
@@ -13,31 +13,26 @@ if (!isset($_POST['page']) || !isset($html)) {
 $schema   = $_POST['subpage'] ?? '';
 $database = $conn->getDatabase();
 
-if (!file_exists('files')) {
-  @mkdir('files');
-}
+// folders creation
+$files_folder      = __DIR__ . '/../files';
+$database_folder   = "$files_folder/$database";
+$tables_folder     = "$database_folder/tables";
+$partitions_folder = "$database_folder/partitions";
 
-if (!file_exists($database)) {
-  @mkdir("files/$database");
-}
-
-if (!file_exists("files/$database/tables")) {
-  @mkdir("files/$database/tables");
-}
-
-if (!file_exists("files/$database/partitions")) {
-  @mkdir("files/$database/partitions");
-}
+!file_exists($files_folder) ? @mkdir($files_folder) : '';
+!file_exists($database_folder) ? @mkdir($database_folder) : '';
+!file_exists($tables_folder) ? @mkdir($tables_folder) : '';
+!file_exists($partitions_folder) ? @mkdir($partitions_folder) : '';
 
 //  create .htaccess if not exists
-if (!file_exists('files/.htaccess')) {
-  $htaccess = fopen('files/.htaccess', 'w');
+if (!file_exists("$files_folder/.htaccess")) {
+  $htaccess = fopen("$files/.htaccess", 'w');
   fwrite($htaccess, 'deny from all');
   fclose($htaccess);
 }
 
-$tables_file     = "files/$database/tables/{$schema}_t.csv";
-$partitions_file = "files/$database/partitions/{$schema}_p.csv";
+$tables_file     = "$tables_folder/{$schema}_t.csv";
+$partitions_file = "$partitions_folder/{$schema}_p.csv";
 
 if ($schema == '') {
   echo 'Schema not found or not informed';
@@ -130,7 +125,7 @@ foreach ($tables as $table) {
   }
 
   $create_table_index = $stmt->fetch(PDO::FETCH_ASSOC)['create_table'];
-  $create_table_index = preg_replace('/\n\)/', ' ', $create_table_index);
+  $create_table_index = preg_replace("/\n\)/", ' ', $create_table_index);
   $create_table_index = explode(';', $create_table_index);
   $create_list        = $create_table_index[0];
   unset($create_table_index[0]);
@@ -145,7 +140,7 @@ foreach ($tables as $table) {
     unset($create_list[0]);
     $create_list = explode(',', $create_list[1]);
     $create_list = array_map('trim', $create_list);
-    $create_list = preg_replace('/\r/', ' ', $create_list);
+    $create_list = preg_replace("/\r/", ' ', $create_list);
 
     $str_columns = '';
     foreach ($create_list as $key => $value) {
@@ -167,7 +162,7 @@ foreach ($tables as $table) {
         } else if (preg_match('/FOREIGN/', $value)) {
           $str_columns .= "FOREIGN KEY:$keys_constraint;";
         }
-      } else if (preg_match('/\n\)/', $v_list[0])) {
+      } else if (preg_match("/\n\)/", $v_list[0])) {
         continue;
       } else {
         $str_columns .= "{$v_list[0]}:{$v_list[1]};";
@@ -188,7 +183,6 @@ foreach ($tables as $table) {
         $str_indexes .= "$index_type:$index_values;";
       }
       $str_indexes = rtrim($str_indexes, ';');
-      // $str_columns .= $str_indexes;
     }
 
     $file_tables = fopen($tables_file, 'a');
