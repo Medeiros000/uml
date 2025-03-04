@@ -1,20 +1,22 @@
 <?php
-if (!isset($_POST['page']) || !isset($html)) {
+require_once __DIR__ . "/../vendor/autoload.php";
+
+if (!isset($_POST['page'])) {
   echo "You are doing it wrong!";
   exit;
 }
 
-echo $html->h_o_container('m-auto mt-3 mb-3');
-echo $html->h_span('UML Option', 'fs-4 text-center');
-echo $html->h_c_container();
+echo h_o_container('m-auto mt-3 mb-3');
+echo h_span('UML Option', 'fs-4 text-center');
+echo h_c_container();
 
-echo $html->post();
+echo post();
 $query_schemas = "SELECT schema_name FROM information_schema.schemata WHERE schema_name NOT LIKE 'pg_%' AND schema_name != 'information_schema' ORDER BY schema_name";
 $stmt          = $db->prepare($query_schemas);
 $stmt->execute();
 $schemas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-echo $html->h_o_container('m-auto mt-3');
+echo h_o_container('m-auto mt-3');
 ?>
 <form class="d-flex column" id="form2" method="post" action="./">
   <input type="hidden" name="page" value="schema">
@@ -31,7 +33,7 @@ echo $html->h_o_container('m-auto mt-3');
 </form>
 <?php
 
-echo $html->h_c_container();
+echo h_c_container();
 
 if (isset($_POST['subpage'])) {
   echo 'schema';
@@ -56,10 +58,10 @@ if (isset($_POST['subpage'])) {
   }
   fclose($t_csv);
 
-  echo $html->h_o_container();
+  echo h_o_container();
   foreach ($l_tab as $key => $value) {
-    echo $html->h_card_t($key, $value, $l_part);
+    echo h_card_t($key, $value, $l_part);
   }
-  echo $html->h_c_container();
+  echo h_c_container();
 }
 ?>

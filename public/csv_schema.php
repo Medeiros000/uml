@@ -1,11 +1,11 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . "/../vendor/autoload.php";
 
 $padrao_parenteses = '/\((.*?)\)/';
 $padrao_varchar    = '/character varying/';
 $variavel          = ['character', 'double', 'timestamp', 'time', 'interval'];
 
-if (!isset($_POST['page']) || !isset($html)) {
+if (!isset($_POST['page'])) {
   echo 'You are doing it wrong!';
   exit;
 }
@@ -38,10 +38,10 @@ if ($schema == '') {
   echo 'Schema not found or not informed';
   exit;
 } else {
-  echo $html->h_o_container('m-auto mt-3 mb-3');
-  echo $html->h_span('Schema: ', 'fs-4 text-center m-1');
-  echo $html->h_span($schema, 'fs-4 text-center m-1 text-danger');
-  echo $html->h_c_container();
+  echo h_o_container('m-auto mt-3 mb-3');
+  echo h_span('Schema: ', 'fs-4 text-center m-1');
+  echo h_span($schema, 'fs-4 text-center m-1 text-danger');
+  echo h_c_container();
 }
 
 $query = "SELECT table_name
@@ -57,9 +57,9 @@ $padrao    = '/PARTITION OF/';
 $reg_table = [];
 
 if (count($tables) == 0) {
-  echo $html->h_o_container('m-auto mt-3 mb-3');
-  echo $html->h_span('Tables not found', 'fs-4 text-center m-1');
-  echo $html->h_c_container();
+  echo h_o_container('m-auto mt-3 mb-3');
+  echo h_span('Tables not found', 'fs-4 text-center m-1');
+  echo h_c_container();
 
   $t = fopen($tables_file, 'w');
   fclose($t);
@@ -90,9 +90,9 @@ if (file_exists($tables_file)) {
   }
 
   if ($n_tab_csv == count($tables)) {
-    echo $html->h_o_container('m-auto mt-3 mb-3');
-    echo $html->h_span('Tables already saved', 'fs-4 text-center m-1');
-    echo $html->h_c_container();
+    echo h_o_container('m-auto mt-3 mb-3');
+    echo h_span('Tables already saved', 'fs-4 text-center m-1');
+    echo h_c_container();
     exit;
   } else {
     $t = fopen($tables_file, 'w');
@@ -114,13 +114,13 @@ foreach ($tables as $table) {
     $erro          = 'Database error. Please contact the administrator.';
 
     if (preg_match($erro_function, $e->getMessage())) {
-      $link = $html->h_a_link('tabledef', 'table_def');
+      $link = h_a_link('tabledef', 'table_def');
       $erro = "Function pg_get_$link not found. Please contact the administrator.";
     }
 
-    echo $html->h_o_container('m-auto mt-3 mb-3');
-    echo $html->h_span($erro, 'fs-4 text-center m-1');
-    echo $html->h_c_container();
+    echo h_o_container('m-auto mt-3 mb-3');
+    echo h_span($erro, 'fs-4 text-center m-1');
+    echo h_c_container();
     exit;
   }
 
@@ -201,7 +201,7 @@ foreach ($reg_table as $key => $value) {
 }
 fclose($partitions);
 
-echo $html->h_o_container('m-auto mt-3 mb-3');
-echo $html->h_span('END', 'fs-4 text-center m-1 text-danger');
-echo $html->h_c_container();
+echo h_o_container('m-auto mt-3 mb-3');
+echo h_span('END', 'fs-4 text-center m-1 text-danger');
+echo h_c_container();
 ?>

@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . "/../vendor/autoload.php";
+
 $schema   = $_POST['subpage'] ?? '';
 $database = $conn->getDatabase();
 
@@ -6,10 +8,10 @@ if ($schema == '') {
   echo 'Schema not found or not informed';
   die();
 } else {
-  echo $html->h_o_container('m-auto mt-3 mb-3');
-  echo $html->h_span('Schema: ', 'fs-4 text-center m-1');
-  echo $html->h_span($schema, 'fs-4 text-center m-1 text-danger');
-  echo $html->h_c_container();
+  echo h_o_container('m-auto mt-3 mb-3');
+  echo h_span('Schema: ', 'fs-4 text-center m-1');
+  echo h_span($schema, 'fs-4 text-center m-1 text-danger');
+  echo h_c_container();
 }
 
 $tables_file     = "../files/$database/tables/{$schema}_t.csv";
@@ -26,9 +28,9 @@ if (!file_exists($tables_file) || !file_exists($partitions_file)) {
   $tables     = fgetcsv($t_csv);
 
   if (!$partitions && !$tables) {
-    echo $html->h_o_container('m-auto mt-3 mb-3');
-    echo $html->h_span('No tables and/or the file is empty.', 'fs-4 text-center m-1');
-    echo $html->h_c_container();
+    echo h_o_container('m-auto mt-3 mb-3');
+    echo h_span('No tables and/or the file is empty.', 'fs-4 text-center m-1');
+    echo h_c_container();
     fclose($p_csv);
     fclose($t_csv);
     die();
@@ -57,15 +59,15 @@ if (!file_exists($tables_file) || !file_exists($partitions_file)) {
   fclose($t_csv);
   ksort($l_tab);
 
-  echo $html->h_o_container('m-auto mt-3 mb-3');
+  echo h_o_container('m-auto mt-3 mb-3');
   echo '<button id="expand" class="btn btn-dark" onclick="expand_all()">expand all</button>';
-  echo $html->h_c_container();
+  echo h_c_container();
 
-  echo $html->h_o_container();
+  echo h_o_container();
   foreach ($l_tab as $key => $value) {
     $head = array_key_exists($key, $l_part) ? "{$key} ({$l_part[$key]} partitions)" : $key;
-    echo $html->h_card_t($head, $value, $l_indexes[$key]);
+    echo h_card_t($head, $value, $l_indexes[$key]);
   }
-  echo $html->h_c_container();
+  echo h_c_container();
 }
 ?>
