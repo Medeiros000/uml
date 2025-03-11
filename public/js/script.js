@@ -36,7 +36,7 @@ function expand_all() {
 
 function send_form(page) {
 	$("#post").html(`
-        <form id="form" method="post" action="./">
+        <form id="form" method="post" action="/">
             <input type="hidden" name="page" value="${page}">
         </form>
     `);

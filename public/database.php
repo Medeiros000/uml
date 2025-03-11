@@ -12,5 +12,5 @@ if (isset($_POST['database']) && $_POST['database'] != $conn->getDatabase()) {
 
 $_SESSION['database'] = $database;
 
-header('Location: /uml');
+header('Location: /');
 ?>
