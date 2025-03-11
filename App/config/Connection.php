@@ -1,5 +1,5 @@
 <?php
-namespace App;
+namespace app;
 
 use Dotenv\Dotenv;
 use PDO;
@@ -25,10 +25,10 @@ class Connection
     $this->username = $_ENV['DB_USERNAME'];
     $this->password = $_ENV['DB_PASSWORD'];
 
-    $this->connect();
+    $this->connect_pdo();
   }
 
-  private function connect()
+  private function connect_pdo()
   {
     $dsn = "pgsql:host={$this->host};port={$this->port};dbname={$this->database};";
     try {

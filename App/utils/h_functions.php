@@ -34,6 +34,7 @@ function h_head_t($title, $meta = Null)
               <script src='js/jquery/jquery-3.7.1.min.js'></script>
               <link rel='stylesheet' href='css/bootstrap/css/bootstrap.min.css'>
               <script src='css/bootstrap/js/bootstrap.min.js'></script>
+              <link rel='icon' href='img/favicon.png' type='image/png'>
               <link rel='stylesheet' href='css/style.css'>
               <script src='js/script.js'></script>
               $meta

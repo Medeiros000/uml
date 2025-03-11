@@ -1,5 +1,9 @@
 <?php
-require_once __DIR__ . "/../vendor/autoload.php";
+// Config for big tables
+ini_set('max_execution_time', 0);
+ini_set('memory_limit', '3072M');
+
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $padrao_parenteses = '/\((.*?)\)/';
 $padrao_varchar    = '/character varying/';
@@ -72,7 +76,7 @@ if (file_exists($tables_file)) {
   $t         = fopen($tables_file, 'r');
   $n_tab_csv = 0;
 
-  while (($line = fgetcsv($t)) !== false) {
+  while (($line = fgetcsv($t, 0, ',', '"', '"')) !== false) {
     if (!empty(array_filter($line))) {
       $n_tab_csv++;
     }
@@ -81,7 +85,7 @@ if (file_exists($tables_file)) {
 
   if (file_exists($partitions_file)) {
     $p = fopen($partitions_file, 'r');
-    while (($line = fgetcsv($p)) !== false) {
+    while (($line = fgetcsv($p, 0, ',', '"', '"')) !== false) {
       if (!empty(array_filter($line))) {
         $n_tab_csv += $line[2];
       }

@@ -1,6 +1,4 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
-
 $error_code = isset($_SERVER['REDIRECT_STATUS']) ? $_SERVER['REDIRECT_STATUS'] : '';
 
 $error_message =
@@ -13,7 +11,7 @@ $error_message =
 
 ?>
 
-<form action="/uml/" method="post">
+<form action="/" method="post">
     <input type="hidden" name="page">
 </form>
 <script>

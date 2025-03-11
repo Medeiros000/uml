@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../vendor/autoload.php";
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $schema   = $_POST['subpage'] ?? '';
 $database = $conn->getDatabase();
@@ -24,8 +24,8 @@ if (!file_exists($tables_file) || !file_exists($partitions_file)) {
   $p_csv = fopen($partitions_file, 'r');
   $t_csv = fopen($tables_file, 'r');
 
-  $partitions = fgetcsv($p_csv);
-  $tables     = fgetcsv($t_csv);
+  $partitions = fgetcsv($p_csv, 0, ',', '"', '"');
+  $tables     = fgetcsv($t_csv, 0, ',', '"', '"');
 
   if (!$partitions && !$tables) {
     echo h_o_container('m-auto mt-3 mb-3');
@@ -40,7 +40,7 @@ if (!file_exists($tables_file) || !file_exists($partitions_file)) {
   fclose($t_csv);
 
   $p_csv      = fopen($partitions_file, 'r');
-  $partitions = fgetcsv($p_csv);
+  $partitions = fgetcsv($p_csv, 0, ',', '"', '"');
   fclose($p_csv);
 
   if ($partitions) {
@@ -52,7 +52,7 @@ if (!file_exists($tables_file) || !file_exists($partitions_file)) {
   }
 
   $t_csv = fopen($tables_file, 'r');
-  while ($tables = fgetcsv($t_csv)) {
+  while ($tables = fgetcsv($t_csv, 0, ',', '"', '"')) {
     $l_tab[$tables[1]]     = explode(';', $tables[2]);
     $l_indexes[$tables[1]] = explode(';', $tables[3]);
   }
